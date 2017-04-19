@@ -1,4 +1,4 @@
-![Mastodon](https://assets.mastodon.social/assets/fluffy-elephant-friend-6b47d8e924332955795ff4b2d8fc446437d26b28bfc67d6be2a4d88995ab2c1f.png)
+<div style="text-align: center">![Mastodon](https://assets.mastodon.social/assets/fluffy-elephant-friend-6b47d8e924332955795ff4b2d8fc446437d26b28bfc67d6be2a4d88995ab2c1f.png)</div>
 
 ## Mastodon OAuth2 Creation Tool
 

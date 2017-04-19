@@ -153,7 +153,6 @@
                    }
 
                    if (errorCount === 0) {
-                       console.log(appRequestDomain, appRequestClientName, appRequestCallback, appRequestScopes);
 
                        var scopes =
                        $.ajax({
@@ -171,7 +170,6 @@
                                "<p>Your <code>client_id</code> is:<br>" + data.client_id + "</p>" +
                                "<p>Your <code>client_secret</code> is:<br>" + data.client_secret + "</p><br>" +
                                "<p>Your app ID is " + data.id + "</p>");
-                               console.log(data);
                            },
                            error: function() {
                                displayError("There was an error requesting to create your application. One of your input parameters may be malformed.");

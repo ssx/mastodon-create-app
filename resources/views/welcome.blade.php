@@ -48,21 +48,21 @@
                     <h2>Create Mastodon OAuth2 Application</h2>
                     <p>You can use the form below to easily create an OAuth2 application on any Mastodon instance. This
                         will return you a <code>client_id</code> and <code>client_secret</code> for you to then use in
-                        your application.</p>
-                    <br>
+                        your application. <strong>This runs completely within your browser and is secure.</strong></p>
+
                     <div class="form-group">
                         <label for="iptInstance">Mastodon Instance</label>
                         <input type="text" id="iptInstance" class="form-control" placeholder="mastodon.social" required autofocus>
                     </div>
 
                     <div class="form-group">
-                        <label for="iptInstance">Application Name</label>
-                        <input type="text" id="iptInstance" class="form-control" placeholder="My Awesome Mastodon App" required autofocus>
+                        <label for="iptName">Application Name (required)</label>
+                        <input type="text" id="iptName" class="form-control" placeholder="My Awesome Mastodon App" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="iptInstance">Redirect URI</label>
-                        <input type="text" id="iptInstance" class="form-control" placeholder="https://your.site/callback" required autofocus>
+                        <label for="iptCallback">Redirect URI (required)</label>
+                        <input type="text" id="iptCallback" class="form-control" placeholder="https://your.site/callback" required>
                     </div>
 
                     <div class="form-group">
@@ -71,17 +71,17 @@
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" name="scopes[]" value="read"> Read
+                                <input class="form-check-input" type="checkbox" value="read"> Read
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" name="scopes[]" value="write"> Write
+                                <input class="form-check-input" type="checkbox" value="write"> Write
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" name="scopes[]" value="follow" disabled> Follow
+                                <input class="form-check-input" type="checkbox" value="follow"> Follow
                             </label>
                         </div>
                     </div>
@@ -89,8 +89,11 @@
 
                 <div class="col-md-12">
                     <br>
-                    <button class="btn btn-md btn-primary" type="submit">Create Application</button>
-                    <button class="btn btn-md btn-info" type="submit">Show Curl Command</button>
+                    <div id="messageHolder" class="alert alert-info">Complete the fields above and click 'Create Application' to continue.</div>
+                </div>
+
+                <div class="col-md-12">
+                    <button id="btnCreateApp" class="btn btn-md btn-primary" type="submit">Create Application</button>
                 </div>
 
                 <div class="col-md-12">
@@ -108,5 +111,78 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
                 integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
                 crossorigin="anonymous"></script>
+
+        <script>
+
+            $(document).ready(function() {
+                function displayError(text) {
+                    $("#messageHolder").html("<p>Error: " + text + "</p>").addClass("alert-danger");
+                }
+
+                function displaySuccess(text) {
+                    $("#messageHolder").html(text).addClass("alert-success");
+                }
+
+
+                $("#btnCreateApp").on("click", function(e) {
+                    e.preventDefault();
+
+                   var appRequestDomain        = $("#iptInstance");
+                   var appRequestClientName    = $("#iptName");
+                   var appRequestCallback      = $("#iptCallback");
+                   var appRequestScopes        = $(".form-check-input:checked");
+                   var errorCount              = 0;
+
+                   // Check to see that scopes are selected
+                   if (appRequestScopes.length === 0) {
+                       errorCount++; displayError("You haven't selected any scopes to request.");
+                   }
+
+                   // If no instance if provided, set a default one
+                   if (appRequestDomain.val() === "") {
+                       appRequestDomain.val("mastodon.social");
+                   }
+
+                   // Check a callback was provided
+                   if (appRequestCallback.val() === "") {
+                       errorCount++; displayError("You haven't set a callback URL."); appRequestCallback.focus();
+                   }
+
+                   if (appRequestClientName.val() === "") {
+                       errorCount++; displayError("You haven't provided a name for your application."); appRequestClientName.focus();
+                   }
+
+                   if (errorCount === 0) {
+                       console.log(appRequestDomain, appRequestClientName, appRequestCallback, appRequestScopes);
+
+                       var scopes =
+                       $.ajax({
+                           type: "POST",
+                           url: "https://" + appRequestDomain.val() + "/api/v1/apps",
+                           data: {
+                               client_name: appRequestClientName.val(),
+                               redirect_uris: appRequestCallback.val(),
+                               scopes: appRequestScopes.map(function () {
+                                   return this.value;
+                               }).get().join(' ')
+                           },
+                           success: function(data, status, xhr) {
+                               displaySuccess("<p>Your create request was successful.</p><br>" +
+                               "<p>Your <code>client_id</code> is:<br>" + data.client_id + "</p>" +
+                               "<p>Your <code>client_secret</code> is:<br>" + data.client_secret + "</p><br>" +
+                               "<p>Your app ID is " + data.id + "</p>");
+                               console.log(data);
+                           },
+                           error: function() {
+                               displayError("There was an error requesting to create your application. One of your input parameters may be malformed.");
+                           }
+                       });
+
+                   }
+
+                   return false;
+               });
+            });
+        </script>
     </body>
 </html>

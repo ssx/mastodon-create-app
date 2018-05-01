@@ -1,4 +1,4 @@
-![Mastodon](https://mastodon-create-app.ssx.tools/mastodon.png)
+![Mastodon](https://mastodon-create-app.tools.dor.ky/mastodon.png)
 
 ## Mastodon OAuth2 Creation Tool
 
